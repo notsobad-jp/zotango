@@ -5,23 +5,23 @@
       <small>
         <a href="#" target="_blank">
           https://www.evernote.com/pub/tonishi157/korean
-          <i class="icon linkfy"></i>
+          <i class="icon external"></i>
         </a>
       </small>
     </div>
     <br>
 
-    <div class="ui icon basic buttons">
-      <div class="ui icon button" data-tooltip="上下を入れ替えて表示" data-inverted="" data-position="top left">
+    <div class="ui icon buttons">
+      <div class="ui icon basic button" data-tooltip="上下を入れ替えて表示" data-inverted="" data-position="top left">
         <i class="icon clockwise rotated exchange"></i>
       </div>
-      <div class="ui icon button" data-tooltip="今日復習するものだけ表示" data-inverted="" data-position="top left">
+      <div class="ui icon pink basic button" data-tooltip="今日復習するものだけ表示" data-inverted="" data-position="top left">
         <i class="icon calendar"></i>
       </div>
-      <div class="ui icon button" data-tooltip="✅タグが付いたものを非表示" data-inverted="" data-position="top left">
+      <div class="ui icon basic button" data-tooltip="✅タグが付いたものを非表示" data-inverted="" data-position="top left">
         <i class="icon checkmark"></i>
       </div>
-      <div class="ui icon button" data-tooltip="⭐タグが付いたものだけ表示" data-inverted="" data-position="top left">
+      <div class="ui icon basic button" data-tooltip="⭐タグが付いたものだけ表示" data-inverted="" data-position="top left">
         <i class="icon star"></i>
       </div>
     </div>
@@ -29,11 +29,17 @@
     <div class="ui cards">
       <div class="ui card" each={ note in notes }>
         <div class="main content">
+          <div class="speaker">
+            <i class="icon volume up"></i>
+          </div>
           <div class="ui large header">
             <span>{ note.title.split('|', 2)[0] }</span>
           </div>
         </div>
         <div class="description">
+          <div class="speaker">
+            <i class="icon volume up"></i>
+          </div>
           <span class="" data-card-value="{note.title.split('|', 2)[1]}">
             <b class="ui large header">？</b><br>
             <small>タップして確認</small>
@@ -53,20 +59,25 @@
     </div>
 
     <div class="ui basic segment">
-      <div class="ui tiny progress" data-percent="74">
+      <div class="ui tiny progress">
         <div class="bar"></div>
-        <div class="label">2/16</div>
+        <div class="label">{ currentCardNum }/{ totalCardNum }</div>
       </div>
     </div>
   </section>
+
 
   <style>
     section {
       margin-top: 70px;
       margin-bottom: 50px;
     }
-
     h1 { margin-bottom: 0 !important; }
+
+    .ui.buttons:not(.basic):not(.inverted)>.button, .ui.buttons>.ui.button:not(.basic):not(.inverted) {
+      box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset;
+    }
+
 
     .ui.card {
       margin: 30px 10px;
@@ -102,9 +113,19 @@
      }
 
      .slick-slide {
-       outline: none
+       outline: none;
+     }
+
+     .speaker {
+       position: absolute;
+       top: 10px;
+       right: 15px;
+     }
+     .description .speaker {
+       top: 240px;
      }
   </style>
+
 
 	<script>
 		var that = this
@@ -113,6 +134,10 @@
     that.notebookName = '韓国語単語集'
 
     $.get('json/notes.json', function(notes){
+      that.totalCardNum = JSON.parse(notes).length
+      that.currentCardNum = 1
+      $('.progress').progress({ percent: (that.currentCardNum / that.totalCardNum) * 100 })
+
       $.get('json/tags.json', function(taggings){
         that.taggings = JSON.parse(taggings)
         that.notes = JSON.parse(notes)
@@ -126,6 +151,7 @@
           infinite: false,
           centerPadding: '20px',
           mobileFirst: false,
+          touchMove: false,
         })
       })
     })
@@ -147,13 +173,29 @@
     }
 
     $(function(){
-      // $('.description').on('click', function(){
-      //   console.log("aaa")
-      // })
-      $('.slick-current').on('click', 'div.button', function() {
-        console.log("aaaa")
-      });
-    })
+      $('.cards').on('click', function(event, slick, direction){
+        // .descriptionをクリックしたときだけ発火させる
+        if($(event.target).attr('class')=='description') {
+          cardValue = $('.slick-current .description span').attr('data-card-value')
+          $('.slick-current .description span').text(cardValue)
+          $('.slick-current .description span').addClass('ui large header')
+        }
+        // .speakerをクリックしたときだけ発火させる
+      })
+      $('.cards').on('afterChange', function(event, slick, currentSlide, nextSlide){
+        that.currentCardNum = currentSlide + 1
+        that.update()
+        $('.progress').progress({ percent: (that.currentCardNum / that.totalCardNum) * 100 })
+      })
 
+
+      $('.buttons .button').on('click', function(){
+        $(this).toggleClass('pink')
+      })
+
+      $('.main.content:after').on('click', function(){
+        alert("aa")
+      })
+    })
 	</script>
 </cards>
