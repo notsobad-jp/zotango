@@ -1,27 +1,16 @@
 <cards>
   <section>
-    <h1 class="ui medium header">{ notebookName }</h1>
-    <div class="">
-      <small>
-        <a href="#" target="_blank">
-          https://www.evernote.com/pub/tonishi157/korean
-          <i class="icon external"></i>
-        </a>
-      </small>
-    </div>
-    <br>
-
-    <div class="ui icon buttons">
+    <div class="ui four icon buttons">
       <div class="ui icon basic button" data-tooltip="上下を入れ替えて表示" data-inverted="" data-position="top left">
         <i class="icon clockwise rotated exchange"></i>
       </div>
       <div class="ui icon pink basic button" data-tooltip="今日復習するものだけ表示" data-inverted="" data-position="top left">
         <i class="icon calendar"></i>
       </div>
-      <div class="ui icon basic button" data-tooltip="✅タグが付いたものを非表示" data-inverted="" data-position="top left">
+      <div class="ui icon basic button" data-tooltip="✅タグが付いたものを非表示" data-inverted="" data-position="top right">
         <i class="icon checkmark"></i>
       </div>
-      <div class="ui icon basic button" data-tooltip="⭐タグが付いたものだけ表示" data-inverted="" data-position="top left">
+      <div class="ui icon basic button" data-tooltip="⭐タグが付いたものだけ表示" data-inverted="" data-position="top right">
         <i class="icon star"></i>
       </div>
     </div>
@@ -76,6 +65,9 @@
 
     .ui.buttons:not(.basic):not(.inverted)>.button, .ui.buttons>.ui.button:not(.basic):not(.inverted) {
       box-shadow: 0 0 0 1px rgba(34,36,38,.15) inset;
+    }
+    [data-tooltip][data-inverted]:after {
+      z-index: 1000;
     }
 
 
@@ -133,14 +125,14 @@
     //TODO: URLパラメータから公開notebookの情報を取得
     that.notebookName = '韓国語単語集'
 
-    $.get('json/notes.json', function(notes){
-      that.totalCardNum = JSON.parse(notes).length
+    $.getJSON('json/notes.json', function(notes){
+      that.totalCardNum = notes.length
       that.currentCardNum = 1
       $('.progress').progress({ percent: (that.currentCardNum / that.totalCardNum) * 100 })
 
-      $.get('json/tags.json', function(taggings){
-        that.taggings = JSON.parse(taggings)
-        that.notes = JSON.parse(notes)
+      $.getJSON('json/tags.json', function(taggings){
+        that.taggings = taggings
+        that.notes = notes
         that.update()
 
         $('.cards').slick({
